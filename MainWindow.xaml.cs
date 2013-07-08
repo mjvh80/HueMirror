@@ -1,22 +1,12 @@
 ﻿using Q42.HueApi;
 using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace HueMirror
 {
@@ -25,6 +15,15 @@ namespace HueMirror
    /// </summary>
    public partial class MainWindow : Window
    {
+      public Color MainColour
+      {
+         set
+         {
+            // I'm a wpf n00b.
+            ((RadialGradientBrush)this.Resources["brush"]).GradientStops[1].Color = value;
+         }
+      }
+
       private Timer _timer;
 
       private static HueClient _GetHueClient()
@@ -39,12 +38,18 @@ namespace HueMirror
          Top = Top + e.VerticalChange;
       }
 
+      public void OnCloseClick(Object sender, EventArgs e)
+      {
+         this.Close();
+      }
+
       public MainWindow()
       {
          InitializeComponent();
 
          // Why is this internal, lame.
-         var converter = typeof(HueClient).Assembly.GetType("Q42.HueApi.HueColorConverter").GetMethod("HexFromXy", BindingFlags.Static | BindingFlags.Public, null, new[] { typeof(Double), typeof(Double) }, null);
+         var converter = typeof(HueClient).Assembly.GetType("Q42.HueApi.HueColorConverter")
+                                                   .GetMethod("HexFromXy", BindingFlags.Static | BindingFlags.Public, null, new[] { typeof(Double), typeof(Double) }, null);
 
          // Poll and update the client.
          var client = _GetHueClient();
@@ -59,15 +64,26 @@ namespace HueMirror
 
                ((SynchronizationContext)context).Post(o =>
                {
-                  // WindowBorder.Background.Opacity = (Double)light.State.ColorTemperature;
-                  MainColour.Color = Color.FromRgb(Byte.Parse(rgb.Substring(0, 2), NumberStyles.HexNumber), Byte.Parse(rgb.Substring(2, 2), NumberStyles.HexNumber), Byte.Parse(rgb.Substring(4, 2), NumberStyles.HexNumber));
+                  if (light.State.On)
+                  {
+                     var alpha = (Byte)(255 * (light.State.Brightness / 255.0) * (light.State.ColorTemperature / (500.0 - 153)));
+                    
+                     Func<String, Byte> @byte = s => Byte.Parse(s, NumberStyles.HexNumber);
+                     MainColour = Color.FromArgb(alpha, @byte(rgb.Substring(0, 2)), @byte(rgb.Substring(2, 2)), @byte(rgb.Substring(4, 2)));
+                  }
+                  else
+                  {
+                     // light is off
+                     MainColour = Color.FromRgb(0, 0, 0);
+                  }
                }, null);
             }, TaskContinuationOptions.OnlyOnRanToCompletion)
             .ContinueWith(t =>
             {
-               client = _GetHueClient(); // just get a new one ey
+               // Maybe the client timed out or whatever, just get a new one ey.
+               client = _GetHueClient();
             }, TaskContinuationOptions.OnlyOnFaulted);
-         }, SynchronizationContext.Current, 0, 200);
+         }, SynchronizationContext.Current, 0, 200); // poll every 200 ms say
       }
    }
 }

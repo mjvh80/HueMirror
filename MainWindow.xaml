@@ -2,19 +2,33 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="MainWindow" Height="50" Width="50"
-         WindowStyle="None" AllowsTransparency="true" Background="Transparent" Topmost="True">
-   <Border Name="WindowBorder" BorderBrush="Transparent" BorderThickness="0" CornerRadius="25">
-      <Border.Background>
-         <RadialGradientBrush GradientOrigin="0.75,0.25">
-            <GradientStop Color="#ddffffff" Offset="0.0" />
-            <GradientStop x:Name="MainColour" Color="red" Offset="1.4" />
-         </RadialGradientBrush>
-      </Border.Background>
+         WindowStyle="None" AllowsTransparency="true" Background="Transparent" Topmost="True" Icon="{DynamicResource ResourceKey=appIcon}" >
+   <!--Icon="{Binding Source={ComponentResourceKey ResourceId=appIcon}, Path=Image}"-->
+   <Window.Resources>
+      <RadialGradientBrush x:Key="brush" GradientOrigin="0.75,0.25">
+         <GradientStop Color="#ddffffff" Offset="0.0" />
+         <GradientStop Color="red" Offset="1.4" />
+      </RadialGradientBrush>
+      <DrawingImage x:Key="appIcon">
+         <DrawingImage.Drawing>
+            <GeometryDrawing Brush="{DynamicResource ResourceKey=brush}">
+               <GeometryDrawing.Geometry>
+                  <EllipseGeometry Center="0,0" RadiusX="30" RadiusY="30" />
+               </GeometryDrawing.Geometry>
+            </GeometryDrawing>
+         </DrawingImage.Drawing>
+      </DrawingImage>
+   </Window.Resources>
+   <Border Name="WindowBorder" BorderBrush="Transparent" BorderThickness="0" CornerRadius="25" Background="{DynamicResource ResourceKey=brush}">
       <Grid>
-         <Thumb Opacity="0" 
-                Background="{x:Null}" 
-                Foreground="{x:Null}" 
-                DragDelta="OnDragDelta"/>
+         <Thumb Opacity="0" Background="{x:Null}" Foreground="{x:Null}" DragDelta="OnDragDelta">
+            <Thumb.ContextMenu>
+               <ContextMenu >
+                  <MenuItem Header="Close" Click="OnCloseClick"  />
+               </ContextMenu>
+            </Thumb.ContextMenu>
+         </Thumb>
       </Grid>
    </Border>
+  
 </Window>
