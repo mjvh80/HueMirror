@@ -66,8 +66,8 @@ namespace HueMirror
                {
                   if (light.State.On)
                   {
-                     var alpha = (Byte)(255 * (light.State.Brightness / 255.0) * (light.State.ColorTemperature / (500.0 - 153)));
-                    
+                    // var alpha = (Byte)(255 * (light.State.Brightness / 255.0) * (light.State.ColorTemperature / (500.0 - 153)));
+                     var alpha = (Byte)255;
                      Func<String, Byte> @byte = s => Byte.Parse(s, NumberStyles.HexNumber);
                      MainColour = Color.FromArgb(alpha, @byte(rgb.Substring(0, 2)), @byte(rgb.Substring(2, 2)), @byte(rgb.Substring(4, 2)));
                   }
