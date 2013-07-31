@@ -34,8 +34,8 @@ namespace HueMirror
       // Make window draggable.
       private void OnDragDelta(Object sender, DragDeltaEventArgs e)
       {
-         Left = Left + e.HorizontalChange;
-         Top = Top + e.VerticalChange;
+      //   Left = Left + e.HorizontalChange;
+     //    Top = Top + e.VerticalChange;
       }
 
       public void OnCloseClick(Object sender, EventArgs e)
@@ -84,6 +84,21 @@ namespace HueMirror
                client = _GetHueClient();
             }, TaskContinuationOptions.OnlyOnFaulted);
          }, SynchronizationContext.Current, 0, 200); // poll every 200 ms say
+      }
+
+      private void DoubleAnimation_Completed(object sender, EventArgs e)
+      {
+
+      }
+
+      private void DoubleAnimation_Completed_1(object sender, EventArgs e)
+      {
+
+      }
+
+      private void Thumb_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
+      {
+         var p = e.GetPosition((IInputElement)sender);
       }
    }
 }
